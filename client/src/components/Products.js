@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import { Parser } from 'html-to-react'
+
 import "./css/product.css"
+import { Link } from 'react-router-dom';
 function Products() {
 const [products,setProducts]=useState([])
     useEffect(() => {
@@ -62,10 +64,11 @@ const [products,setProducts]=useState([])
                 <br />
               
                 <div class="btn-group" role="group" aria-label="Basic example">
-  <button type="button" class="btn btn-secondary">Edit</button>
+  <button type="button" class="btn btn-secondary"><Link to={`edit/${p.id}`}>Edit</Link></button>
   <button type="button" class="btn btn-secondary">Delete</button>
  
 </div>
+
             </div>
         </div>
          ))}

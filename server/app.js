@@ -7,7 +7,9 @@ dotenv.config();
 const app = express();
 app.use(cors())
 const PORT = process.env.PORT;
-app.use(express.json());
+app.use(express.json({limit: "5000mb", extended: true, parameterLimit:50000}));
+app.use(express.urlencoded({limit: "50000mb", extended: true, parameterLimit:50000}));
+
 app.use(morgan("tiny"));
 app.use("/api/", router);
 

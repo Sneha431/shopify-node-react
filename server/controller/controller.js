@@ -27,14 +27,16 @@ await axios({
         url: `${fullurl}/products.json`,
         headers: {'Content-Type' : 'application/json'},
         data: JSON.stringify(req.body)
-    }).then((response)=>{
+    })
+  
+    .then((response)=>{
       
         res.json({"data posted":response.data})
       
      
     }).catch((err)=>{
         console.log(err)
-        res.send(err);
+        res.send(err.response.data.errors);
     })
     }
     
