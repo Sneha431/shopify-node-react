@@ -1,16 +1,13 @@
-import React, { useState ,useRef, useEffect} from 'react';
-import { useNavigate ,useParams} from "react-router-dom";
+import React, { useState ,useRef, useEffect,} from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { Parser } from 'html-to-react';
-function UpdateProduct() {
+function PostProduct() {
 
     const [file,setfile] = useState(null)
    
     const [imageobjdata,setimageobjdata] = useState([])
    
     const [imageData, setImageData] = useState(null);
-    const [datas, setdatas] = useState();
-    const [position, setposition] = useState();
    const titleref =useRef();
    const bodyref =useRef();
    var imageprevobj = []
@@ -18,39 +15,11 @@ function UpdateProduct() {
    var imageobj = []
    var fileObj = [];
    var resultobj=[];
-   var { id } =useParams();
 const navigate = useNavigate();
-const [bodyhtml, setbodyhtml] = useState();
-const [title, settitle] = useState("");
-const getproductbyid = async() =>{
-    await axios({
-        method: 'get',
-        url: `http://localhost:5000/api/getProducts/${id}`,
-   headers: {'Content-Type' : 'application/json'},
-      
-    })
-      
-         .then((res) => {
-       console.log(res.data.data)
-       setdatas(res.data.data.product)
-       settitle(res.data.data.product.title)
-       setposition(res.data.data.product.images.length)
-         })
-         .catch((err) => {
-            console.log(err);
-         });
-  }
   useEffect(() => {
 imageprevobj.push(Object.assign({}, {attachment: imageData }));
 
- 
   }, [imageData]);
-  useEffect(() => {
-   
-    
-      getproductbyid();
-      }, []);
-
    const uploadMultipleFiles = async(e)=> {
    
   let  fileArray = [];
@@ -90,10 +59,10 @@ for (let i = 0; i < fileObj[0].length; i++) {
  const  uploadFiles= (e)=> {
         e.preventDefault();
     for (let i = 0; i < imageobjdata.length; i++) {
-      resultobj.push(Object.assign({},imageprevobj[0]["attachment"][i], { filename: imageobjdata[i].filename ,position:position <0?position:position+1}));
+      resultobj.push(Object.assign({},imageprevobj[0]["attachment"][i], { filename: imageobjdata[i].filename }));
 
         }
-
+      console.log(resultobj)
     }
   
     const submitform = async(e) =>{
@@ -106,82 +75,68 @@ for (let i = 0; i < fileObj[0].length; i++) {
         const data = {
             "product":{
             title:title,body_html:body_html,
-            "images":{resultobj}
+            "images":resultobj
              }
             
         }
-       
+        
+ console.log(data);
 
-console.log(data)
- await axios({
-    method: 'post',
-    url: `http://localhost:5000/api/putProducts/${id}`,
-headers: {'Content-Type' : 'application/json'},
-    data: JSON.stringify({data})
-})
-  
-     .then((data) => {
-   console.log(data)
-     })
-     .catch((err) => {
-    console.log(data)
-     });
+          await axios({
+            method: 'post',
+            url: 'http://localhost:5000/api/putProducts',
+       headers: {'Content-Type' : 'application/json'},
+            data: JSON.stringify(data)
+        })
+          
+             .then((data) => {
+              navigate("/");
+             })
+             .catch((err) => {
+                console.log(err);
+             });
       
         
 
         
     }
-
-    // const handleTextareaChange = (event) => {
-    //   // Update datas with the new body_html content
-    //   setbodyhtml({ ...datas, body_html: event.target.value });
-    // };
   return (
  <>
  <form>
   <fieldset>
- {datas && <><div className="form-group">
+   
+    <div className="form-group">
       <label htmlFor="title" className="form-label mt-4">Title</label>
-      <input type="text" className="form-control" id="title" name="title"   ref={titleref} onChange={(e) => settitle(e.target.value)} value={title} placeholder="title"/>
+      <input type="text" className="form-control" id="title" name="title" ref={titleref} placeholder="title" autoComplete="off"/>
     </div>
     
     <div className="form-group">
     <label htmlFor="body" className="form-label mt-4">Body</label>
-  <textarea id="body" name="body" ref={bodyref} onChange={(e) => setbodyhtml(bodyref.current.value)}
-       >{datas.body_html}</textarea>
-
- 
-  <p>{bodyref.current? Parser().parse(bodyref.current.value) : Parser().parse(datas.body_html)}</p> 
-
-
+  <textarea id="body" name="body" ref={bodyref}></textarea>
     </div>
    
     <div className="form-group">
     <label htmlFor="body" className="form-label mt-4">Images</label>
     <input type="file" className="form-control" onChange={uploadMultipleFiles} multiple id="imagefile"/>
-   
+    {/* <FileBase
+        type="file"
+        multiple={true}
+        onDone={(base64 ) =>
+        setfile({file: base64 })
+        
+      }
+    //   onChange={uploadMultipleFiles}
+        
+      /> */}
     <button type="button" className="btn btn-danger btn-block" onClick={uploadFiles}>Upload</button>
     </div>
-    {datas.images && 
-   
-   datas.images.map((img)=>(
- <img src={img.src} alt="Selected" style={{ maxWidth: '20%' }} />
-  
-    ))
-  }
-  {file && 
+    {file && 
    
    file.map((img)=>(
  <img src={img} alt="Selected" style={{ maxWidth: '20%' }} />
   
     ))
   }
-  </>
-  }
-
-   
-    
-
     <button type="submit" className="btn btn-danger btn-block" onClick={submitform}>Submit</button>
 </fieldset>
      
@@ -190,4 +145,4 @@ headers: {'Content-Type' : 'application/json'},
   )
 }
 
-export default UpdateProduct
+export default PostProduct

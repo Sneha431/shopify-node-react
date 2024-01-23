@@ -20,6 +20,16 @@ await axios.get(`${fullurl}/products.json`).then((response)=>{
     res.send(err);
 })
 }
+exports.getProductsbyid = async (req,res) =>{
+const id = req.params.id;
+    await axios.get(`${fullurl}/products/${id}.json`).then((response)=>{
+        data = response.data;
+        res.json({ message: 'Request received!', data })
+     
+    }).catch((err)=>{
+        res.send(err);
+    })
+    }
 exports.postProducts = async (req,res) =>{
    
 await axios({
@@ -46,10 +56,11 @@ await axios({
     exports.putProducts = async (req,res) =>{
 
    
-      
+        const id = req.params.id;
+        console.log(id)
     await axios({
             method: 'put',
-            url: `${fullurl}/products/${req.body.product_id}.json`,
+            url: `${fullurl}/products/${id}.json`,
             headers: {'Content-Type' : 'application/json'},
             data: JSON.stringify(req.body.data)
         }).then((response)=>{
@@ -58,18 +69,19 @@ await axios({
           
          
         }).catch((err)=>{
-            console.log(`${fullurl}/products/${req.body.product_id}.json`)
+            console.log(`${fullurl}/products/${id}.json`)
+            console.log(data)
             res.send(err);
         })
         }
 
         exports.delProducts = async (req,res) =>{
 
-   
+            const id = req.params.id;
       
             await axios({
                     method: 'delete',
-                    url: `${fullurl}/products/${req.body.product_id}.json`       
+                    url: `${fullurl}/products/${id}.json`       
                 }).then((response)=>{
                   
                     res.json({"data delete":response.data})
