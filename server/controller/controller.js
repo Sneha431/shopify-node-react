@@ -58,6 +58,7 @@ await axios({
    
         const id = req.params.id;
         console.log(id)
+        console.log(req.body.data)
     await axios({
             method: 'put',
             url: `${fullurl}/products/${id}.json`,
@@ -70,7 +71,7 @@ await axios({
          
         }).catch((err)=>{
             console.log(`${fullurl}/products/${id}.json`)
-            console.log(data)
+            //console.log(err)
             res.send(err);
         })
         }

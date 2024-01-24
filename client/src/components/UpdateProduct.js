@@ -2,15 +2,23 @@ import React, { useState ,useRef, useEffect} from 'react';
 import { useNavigate ,useParams} from "react-router-dom";
 import axios from 'axios';
 import { Parser } from 'html-to-react';
-function UpdateProduct() {
+import { getproductbyid ,putproducts} from './store/ProductSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
+
+function UpdateProduct() {
+ 
     const [file,setfile] = useState(null)
-   
+   const dispatch = useDispatch();
     const [imageobjdata,setimageobjdata] = useState([])
-   
+    let {  singledata,title,position } = useSelector(
+    (state) => state.product
+  );
     const [imageData, setImageData] = useState(null);
-    const [datas, setdatas] = useState();
-    const [position, setposition] = useState();
+   
+    const [title1, settitle1] = useState(title);
+    const [position1, setposition1] = useState(position);
+
    const titleref =useRef();
    const bodyref =useRef();
    var imageprevobj = []
@@ -21,25 +29,8 @@ function UpdateProduct() {
    var { id } =useParams();
 const navigate = useNavigate();
 const [bodyhtml, setbodyhtml] = useState();
-const [title, settitle] = useState("");
-const getproductbyid = async() =>{
-    await axios({
-        method: 'get',
-        url: `http://localhost:5000/api/getProducts/${id}`,
-   headers: {'Content-Type' : 'application/json'},
-      
-    })
-      
-         .then((res) => {
-       console.log(res.data.data)
-       setdatas(res.data.data.product)
-       settitle(res.data.data.product.title)
-       setposition(res.data.data.product.images.length)
-         })
-         .catch((err) => {
-            console.log(err);
-         });
-  }
+
+
   useEffect(() => {
 imageprevobj.push(Object.assign({}, {attachment: imageData }));
 
@@ -48,8 +39,8 @@ imageprevobj.push(Object.assign({}, {attachment: imageData }));
   useEffect(() => {
    
     
-      getproductbyid();
-      }, []);
+    dispatch(getproductbyid(id))
+      }, [id]);
 
    const uploadMultipleFiles = async(e)=> {
    
@@ -89,69 +80,65 @@ for (let i = 0; i < fileObj[0].length; i++) {
 
  const  uploadFiles= (e)=> {
         e.preventDefault();
+
+      
     for (let i = 0; i < imageobjdata.length; i++) {
       resultobj.push(Object.assign({},imageprevobj[0]["attachment"][i], { filename: imageobjdata[i].filename ,position:position <0?position:position+1}));
-
+      
         }
 
     }
   
     const submitform = async(e) =>{
-   
+
         e.preventDefault();
         const title= titleref.current.value;
         const body_html= bodyref.current.value;
       
 
         const data = {
-            "product":{
-            title:title,body_html:body_html,
-            "images":{resultobj}
-             }
-            
-        }
+          "product":{
+          title:title,body_html:body_html,
+          "images":resultobj
+           }
+          
+      }
        
 
 console.log(data)
- await axios({
-    method: 'post',
-    url: `http://localhost:5000/api/putProducts/${id}`,
-headers: {'Content-Type' : 'application/json'},
-    data: JSON.stringify({data})
-})
-  
-     .then((data) => {
-   console.log(data)
+ 
+dispatch(putproducts(data,id)).then((res) => {
+  //  console.log(res)
+   //navigate("/");
      })
      .catch((err) => {
     console.log(data)
      });
-      
-        
+
 
         
     }
 
     // const handleTextareaChange = (event) => {
-    //   // Update datas with the new body_html content
-    //   setbodyhtml({ ...datas, body_html: event.target.value });
+    //   // Update singledata with the new body_html content
+    //   setbodyhtml({ ...singledata, body_html: event.target.value });
     // };
   return (
  <>
  <form>
   <fieldset>
- {datas && <><div className="form-group">
+ {singledata && <><div className="form-group">
       <label htmlFor="title" className="form-label mt-4">Title</label>
-      <input type="text" className="form-control" id="title" name="title"   ref={titleref} onChange={(e) => settitle(e.target.value)} value={title} placeholder="title"/>
+      <input type="text" className="form-control" id="title" name="title"   ref={titleref} onChange={(e) => settitle1(e.target.value)} value={title1} placeholder="title"/>
     </div>
     
     <div className="form-group">
     <label htmlFor="body" className="form-label mt-4">Body</label>
   <textarea id="body" name="body" ref={bodyref} onChange={(e) => setbodyhtml(bodyref.current.value)}
-       >{datas.body_html}</textarea>
+       >{singledata.body_html}</textarea>
 
  
-  <p>{bodyref.current? Parser().parse(bodyref.current.value) : Parser().parse(datas.body_html)}</p> 
+  <p>{bodyref.current? Parser().parse(bodyref.current.value) : Parser().parse(singledata.body_html)}</p> 
 
 
     </div>
@@ -162,9 +149,9 @@ headers: {'Content-Type' : 'application/json'},
    
     <button type="button" className="btn btn-danger btn-block" onClick={uploadFiles}>Upload</button>
     </div>
-    {datas.images && 
+    {singledata.images && 
    
-   datas.images.map((img)=>(
+   singledata.images.map((img)=>(
  <img src={img.src} alt="Selected" style={{ maxWidth: '20%' }} />
   
     ))

@@ -2,50 +2,24 @@ import React, { useEffect, useState } from 'react'
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import { Parser } from 'html-to-react'
-import axios from 'axios';
+
 import "./css/product.css"
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import {deleteproduct,getProducts} from "./store/ProductSlice";
 function Products() {
-const [products,setProducts]=useState([])
-    useEffect(() => {
-        getProducts();
-    }, [])
+const dispatch = useDispatch();
+const [products,setproduct] = useState([])
+const { data } = useSelector(
+  (state) => state.product
+);
+
+useEffect(() => {
+  dispatch(getProducts());
+  setproduct(data)
+}, [data]);
     
-    const getProducts = async() =>{
-//  fetch("http://localhost:5000/api/getProducts").then((res) => res.json())
-//  .then((json) => {
-//     console.log(json)
-//     setProducts(json.data.products)
-//  }).catch((err)=>{
-//         console.log(err);
-//     })
-
-    try {
-      const response = await fetch("http://localhost:5000/api/getProducts");
-      const data = await response.json();
-      console.log(data);
-      setProducts(data.data.products)
-    } catch (error) {
-      console.log(error);
-    }
-  
-    }
-
-    const deleteproduct = async(id)=>{
-      await axios({
-        method: 'post',
-        url: `http://localhost:5000/api/deleteProducts/${id}`,
-   headers: {'Content-Type' : 'application/json'},
-      
-    })
-      
-         .then((data) => {
-        getProducts()
-         })
-         .catch((err) => {
-            console.log(err);
-         });
-    }
+ 
   return (
     <div>
       
@@ -81,7 +55,8 @@ const [products,setProducts]=useState([])
               
                 <div class="btn-group" role="group" aria-label="Basic example">
   <button type="button" class="btn btn-secondary"><Link to={`updateproduct/${p.id}`}>Edit</Link></button>
-  <button type="button" class="btn btn-secondary"><Link onClick={()=>deleteproduct(p.id)}>Delete</Link></button>
+  <button type="button" class="btn btn-secondary"><span onClick={() => dispatch(deleteproduct(p.id))}>Delete</span></button>
+  <button type="button" class="btn btn-secondary">Add to Cart</button>
  
 </div>
 

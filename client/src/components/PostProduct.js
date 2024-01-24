@@ -1,6 +1,8 @@
 import React, { useState ,useRef, useEffect,} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { postproducts } from './store/ProductSlice';
 function PostProduct() {
 
     const [file,setfile] = useState(null)
@@ -8,6 +10,7 @@ function PostProduct() {
     const [imageobjdata,setimageobjdata] = useState([])
    
     const [imageData, setImageData] = useState(null);
+    const dispatch=useDispatch();
    const titleref =useRef();
    const bodyref =useRef();
    var imageprevobj = []
@@ -82,14 +85,7 @@ for (let i = 0; i < fileObj[0].length; i++) {
         
  console.log(data);
 
-          await axios({
-            method: 'post',
-            url: 'http://localhost:5000/api/putProducts',
-       headers: {'Content-Type' : 'application/json'},
-            data: JSON.stringify(data)
-        })
-          
-             .then((data) => {
+ dispatch(postproducts(data)).then((data) => {
               navigate("/");
              })
              .catch((err) => {
